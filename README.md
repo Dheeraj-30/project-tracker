@@ -1,73 +1,88 @@
-# React + TypeScript + Vite
+# Project Tracker – Multi-View Project Management Tool
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A fully functional frontend application for project management with **Kanban**, **List**, and **Timeline** views. Features include custom drag‑and‑drop, virtual scrolling for large lists, real‑time collaboration simulation, URL‑synced filters, and high performance.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🚀 Live Demo
 
-## React Compiler
+[Deployed on Vercel](https://project-tracker-indol-one.vercel.app/)  
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 📸 Lighthouse Score
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+**Performance: 100** | Accessibility: 100 | Best Practices: 100 | SEO: 100
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+![Lighthouse Report](LightHouse_report.png)
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## ✨ Features
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- **Three views** – Kanban, List, Timeline – instant switching with shared state
+- **Custom drag‑and‑drop** (no libraries) – move tasks between Kanban columns with visual feedback
+- **Virtual scrolling** in List view – smooth rendering of 500+ tasks with only visible rows in DOM
+- **Live collaboration indicators** – simulated “other users” viewing tasks, shown as avatars on cards
+- **URL‑synced filters** – filter state (status, priority, assignee, date range) stored in URL; shareable and bookmarkable
+- **Empty states** – columns/lists with no tasks show friendly messages
+- **Due date handling** – “Due Today”, “Overdue by Xd”, or formatted date
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
+
+## 🛠️ Tech Stack
+
+- **React 18** with TypeScript
+- **Zustand** – state management
+- **Tailwind CSS** – styling (custom components, no UI library)
+- **Vite** – build tool
+- **Custom hooks**: `useVirtualScroll`, `useUrlSync`
+
+---
+
+## 📦 Installation & Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/project-tracker.git
+cd project-tracker
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npx serve -s dist
+
+
+## 🧠 State Management Justification
+
+Zustand was chosen because it offers:
+- Minimal boilerplate compared to Redux  
+- Fine‑grained subscriptions, avoiding unnecessary re‑renders  
+- Easy integration with React and TypeScript  
+- Centralised stores for tasks and collaboration simulation, keeping concerns separate  
+
+The stores are split: `useTaskStore` manages all tasks and filters; `useCollaborationStore` handles the simulated real‑time presence. This separation improves maintainability and performance.
+
+## 📜 Virtual Scrolling Implementation
+
+The `useVirtualScroll` hook computes the visible range based on scroll position, item height, and container height. It renders only the items needed (plus an overscan buffer) and uses CSS transforms to position them, avoiding layout shifts. The total height is simulated with a spacer div. This ensures smooth scrolling even with 500+ rows.
+
+## 🖱️ Drag‑and‑Drop Approach
+
+Native HTML5 drag‑and‑drop events are used to satisfy the “no libraries” requirement. Each draggable card stores its ID in `dataTransfer`. Drop zones (columns) listen to `dragover` and `drop`, and on drop they update the task’s status. Visual feedback is provided by a ring on valid drop zones. Because the original card remains in place until the drop, there is no layout shift, and dropping outside a column does nothing (effectively “snap‑back”).
+
+## 🧩 Hardest UI Problem Solved
+
+The hardest part was implementing **live collaboration indicators** without a backend while keeping performance high. Simulating 4 users moving between tasks every 3 seconds required updating the store and efficiently re‑rendering only the cards that were affected. The solution uses a derived `viewersByTask` map in the store, so components can subscribe directly to the viewers of their specific task, avoiding mass re‑renders.
+
+## 🔧 One Thing I’d Refactor with More Time
+
+If I had more time, I would replace the native HTML5 drag‑and‑drop with a custom pointer‑based implementation. This would allow full control over the drag ghost, a placeholder element at the original position, and smooth snap‑back animations – better aligning with the spec and improving touch device support.
